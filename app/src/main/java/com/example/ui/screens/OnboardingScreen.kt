@@ -79,7 +79,7 @@ fun OnboardingScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     
                     Text(
-                        text = "To start browsing movies and TV shows, enter your TMDB API Read Access Token (v4).",
+                        text = "To start browsing movies and TV shows, enter your TMDB API Key (v3) or Read Access Token (v4).",
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextMediumContrast,
                         textAlign = TextAlign.Center

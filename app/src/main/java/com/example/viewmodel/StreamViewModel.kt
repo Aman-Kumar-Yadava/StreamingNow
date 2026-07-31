@@ -63,11 +63,9 @@ class StreamViewModel(application: Application) : AndroidViewModel(application) 
             _authState.value = AuthState.Loading
             try {
                 // Determine if it's a Bearer token or api_key query param. 
-                // The prompt says "paste your TMDB API Key" but the v4 is Bearer, v3 can be api_key.
-                // Let's assume it's a Bearer Read Access Token since that's standard now, or an API key that can be passed as Bearer. 
-                // Actually, TMDB accepts v4 Bearer tokens in the Authorization header. Let's just format it as Bearer.
-                val authHeader = "Bearer $apiKey"
-                api.getConfiguration(authHeader)
+                val authHeader = if (apiKey.startsWith("eyJ")) "Bearer $apiKey" else null
+                val queryParam = if (apiKey.startsWith("eyJ")) null else apiKey
+                api.getConfiguration(authHeader, queryParam)
                 
                 settingsRepository.saveTmdbApiKey(apiKey)
                 currentApiKey = apiKey
@@ -88,12 +86,13 @@ class StreamViewModel(application: Application) : AndroidViewModel(application) 
     private fun loadHomeData() {
         viewModelScope.launch {
             currentApiKey?.let { key ->
-                val authHeader = "Bearer $key"
+                val authHeader = if (key.startsWith("eyJ")) "Bearer $key" else null
+                val queryParam = if (key.startsWith("eyJ")) null else key
                 try {
-                    _trendingMovies.value = api.getTrendingMovies(authHeader).results
-                    _trendingTv.value = api.getTrendingTvShows(authHeader).results
-                    _popularMovies.value = api.getPopularMovies(authHeader).results
-                    _topRatedMovies.value = api.getTopRatedMovies(authHeader).results
+                    _trendingMovies.value = api.getTrendingMovies(authHeader, queryParam).results
+                    _trendingTv.value = api.getTrendingTvShows(authHeader, queryParam).results
+                    _popularMovies.value = api.getPopularMovies(authHeader, queryParam).results
+                    _topRatedMovies.value = api.getTopRatedMovies(authHeader, queryParam).results
                 } catch (e: Exception) {
                     // Handle error (e.g. snackbar or state)
                 }
